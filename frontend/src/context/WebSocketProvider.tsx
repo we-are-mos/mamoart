@@ -100,8 +100,15 @@ export const WebSocketProvider = ({ children }: { children: React.ReactNode }) =
       }
     };
 
+    const heartbeat = setInterval(() => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: "keepAlive" }));
+      }
+    }, 25000);
+
     ws.onclose = () => {
       console.log("🔌 WebSocket closed");
+      clearInterval(heartbeat);
       setSocket(null);
     };
 

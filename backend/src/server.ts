@@ -74,22 +74,31 @@ const wss = new WebSocketServer({ server });
 wss.on("connection", (ws: WebSocket) => {
   console.log("📡 New WebSocket client connected");
   (ws as any).isAlive = true;
+
+  ws.on("message", (msg) => {
+    try {
+      const data = JSON.parse(msg.toString());
   
-  ws.on('pong', () => {
-    (ws as any).isAlive = true;
+      if (data.type === "keepAlive") {
+        (ws as any).isAlive = true;
+        console.log("💓 Ponged by client via keepAlive");
+      }
+  
+    } catch (err) {
+      console.error("❌ WS message parse error:", err);
+    }
   });
 
   const interval = setInterval(() => {
     if (!(ws as any).isAlive) {
-      console.log('❌ Client inactive, closing connection.');
+      console.log("❌ Client inactive, closing connection.");
       return ws.terminate();
     }
-
+  
     (ws as any).isAlive = false;
-    ws.ping();
   }, 30000);
 
-  ws.on('close', () => {
+  ws.on("close", () => {
     clearInterval(interval);
   });
 

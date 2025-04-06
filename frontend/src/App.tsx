@@ -24,6 +24,7 @@ import BrandmarkAndStats from './components/Stats/BrandmarkAndStats';
 import Wallet from './components/Wallet/Wallet';
 import LastPaints from './components/Stats/LastPaints';
 import { WebSocketProvider } from './context/WebSocketProvider';
+import Warning from './components/Warning';
 
 // Initialize wagmi configuration for Forma chain
 const config = getDefaultConfig({
@@ -53,6 +54,7 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider modalSize="compact" theme={darkTheme()} coolMode>
           <WebSocketProvider>
+            <Warning />
             <BrandmarkAndStats />
             <Wallet />
             <Grid />
