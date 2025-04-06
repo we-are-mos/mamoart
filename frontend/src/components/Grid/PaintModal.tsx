@@ -53,18 +53,18 @@ const PaintModal = ({
   const { signMessageAsync } = useSignMessage();
   const { data: walletClient } = useWalletClient();
 
-  const getIsKeplrConnected = async () => {
-    const isKeplrConnectedRes = await fetch(`${import.meta.env.VITE_BACKEND_REST}/connectKeplr/checkIfConnected/${user}`);
-    const isKeplrConnectedData = await isKeplrConnectedRes.json();
-
-    setIsKeplrConnected(isKeplrConnectedData)
-
-    return isKeplrConnected;
-  }
-
   useEffect(() => {
+    if (!user && isKeplrConnected) return;
+    const getIsKeplrConnected = async () => {
+      const isKeplrConnectedRes = await fetch(`${import.meta.env.VITE_BACKEND_REST}/connectKeplr/checkIfConnected/${user}`);
+      const isKeplrConnectedData = await isKeplrConnectedRes.json();
+  
+      setIsKeplrConnected(isKeplrConnectedData)
+  
+      return isKeplrConnected;
+    }
     getIsKeplrConnected()
-  })
+  }, [isKeplrConnected, user])
 
   useEffect(() => {
     if (!selectedTokenId || !selectedNFT || ongoingProcess.current) return;

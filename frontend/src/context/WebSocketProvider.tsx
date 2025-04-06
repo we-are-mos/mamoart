@@ -41,7 +41,6 @@ export const WebSocketProvider = ({ children }: { children: React.ReactNode }) =
 
   useEffect(() => {
     const WS_URL = import.meta.env.VITE_BACKEND_WSS;
-    console.log(WS_URL);
 
     const ws = new WebSocket(WS_URL);
 
