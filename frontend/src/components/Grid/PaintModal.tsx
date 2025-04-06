@@ -41,6 +41,7 @@ const PaintModal = ({
   const selectedNFT = nftList.find((nft) => nft.nft.tokenId === selectedTokenId)
   const ongoingProcess = useRef<boolean>(false);
   const [isKeplrConnected, setIsKeplrConnected] = useState<{ hasConnected: boolean, address: string } | null>(null)
+  const checkedForKeplr = useRef<boolean>(false);
   const [visualGas, setVisualGas] = useState<number | null>(null);
   const [visualGasInDollars, setVisualGasInDollars] = useState<number | null>(null);
   const [protocolFee, setProtocolFee] = useState<number | null>(null);
@@ -54,16 +55,17 @@ const PaintModal = ({
   const { data: walletClient } = useWalletClient();
 
   useEffect(() => {
-    if (!user && isKeplrConnected) return;
-    const getIsKeplrConnected = async () => {
-      const isKeplrConnectedRes = await fetch(`${import.meta.env.VITE_BACKEND_REST}/connectKeplr/checkIfConnected/${user}`);
-      const isKeplrConnectedData = await isKeplrConnectedRes.json();
-  
-      setIsKeplrConnected(isKeplrConnectedData)
-  
-      return isKeplrConnected;
+    if (user && !isKeplrConnected?.hasConnected && !checkedForKeplr.current) {
+      const getIsKeplrConnected = async () => {
+        const isKeplrConnectedRes = await fetch(`${import.meta.env.VITE_BACKEND_REST}/connectKeplr/checkIfConnected/${user}`);
+        const isKeplrConnectedData = await isKeplrConnectedRes.json();
+    
+        setIsKeplrConnected(isKeplrConnectedData)
+        checkedForKeplr.current = true;
+        return isKeplrConnected;
+      }
+      getIsKeplrConnected()
     }
-    getIsKeplrConnected()
   }, [isKeplrConnected, user])
 
   useEffect(() => {
