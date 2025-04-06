@@ -57,6 +57,7 @@ const PaintModal = ({
   useEffect(() => {
     if (user && !isKeplrConnected?.hasConnected && !checkedForKeplr.current) {
       const getIsKeplrConnected = async () => {
+        console.log("heyyyy");
         const isKeplrConnectedRes = await fetch(`${import.meta.env.VITE_BACKEND_REST}/connectKeplr/checkIfConnected/${user}`);
         const isKeplrConnectedData = await isKeplrConnectedRes.json();
     

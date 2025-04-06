@@ -46,6 +46,10 @@ app.use(express.json({ limit: "100kb" }));
 // 📦 API Routes
 // ─────────────────────────────────────────────
 
+app.get("/", (req, res) => {
+  res.status(200).send("Mamoart Backend is alive ✅");
+});
+
 app.use("/getNFTs", getNFTsRoute);
 app.use("/createTx", createTxRoute);
 app.use("/connectKeplr", connectKeplrRoute);
@@ -69,6 +73,25 @@ const wss = new WebSocketServer({ server });
 
 wss.on("connection", (ws: WebSocket) => {
   console.log("📡 New WebSocket client connected");
+  (ws as any).isAlive = true;
+  
+  ws.on('pong', () => {
+    (ws as any).isAlive = true;
+  });
+
+  const interval = setInterval(() => {
+    if (!(ws as any).isAlive) {
+      console.log('❌ Client inactive, closing connection.');
+      return ws.terminate();
+    }
+
+    (ws as any).isAlive = false;
+    ws.ping();
+  }, 30000);
+
+  ws.on('close', () => {
+    clearInterval(interval);
+  });
 
   try {
     const initPayload = {
