@@ -26,16 +26,14 @@ const BrandmarkAndStats = () => {
       </div>
 
       {/* Powered by Link */}
-      <div className="flex gap-2 text-xs bg-[#181818] border border-[#2a2a2a] text-[#aaa] px-4 py-3 rounded-lg shadow-md">
+      <div className="flex gap-1 text-xs bg-[#181818] border border-[#2a2a2a] text-[#aaa] px-4 py-3 rounded-lg shadow-md">
         <span className="text-[#666]">Powered by</span>
         <a
           href="https://x.com/mammothos"
           target="_blank"
           rel="noopener noreferrer"
           className="text-[#8b5cf6] hover:underline font-medium"
-        >
-          MammothOS
-        </a>
+        >MOS Labs</a>
       </div>
     </div>
   );

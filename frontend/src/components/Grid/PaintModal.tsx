@@ -115,9 +115,9 @@ const PaintModal = ({
   );
 
   const getTiaPrice = async () => {
-    const priceRes = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=celestia&vs_currencies=usd");
+    const priceRes = await fetch("https://api.coinlore.net/api/ticker/?id=136105");
     const priceData = await priceRes.json();
-    tia.current = (priceData)?.celestia?.usd ?? tia.current ?? 3;
+    tia.current = priceData[0]?.price_usd ?? 3;
   }
 
   const abi = [

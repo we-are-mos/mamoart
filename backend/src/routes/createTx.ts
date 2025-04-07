@@ -2,6 +2,7 @@ import express, { type Request, type Response } from "express";
 import { verifyMessage } from "viem";
 import { generateSignature } from "../admin";
 import { getLinkedKeplr } from "../state/keplrConnections";
+import { getTiaPrice } from "../state/tiaState";
 
 const router = express.Router();
 
@@ -68,9 +69,7 @@ router.post("/signature", async (req: Request, res: Response) => {
     }
 
     // ─── Fetch real-time TIA price from CoinGecko ─────
-    const priceRes = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=celestia&vs_currencies=usd");
-    const priceData = await priceRes.json();
-    const tiaPrice = (priceData as any)?.celestia?.usd ?? 3;
+    const tiaPrice = getTiaPrice() as any;
 
     // ─── Determine paint fee based on grid state ─────
     const gridRes = await fetch(`${process.env.INDEXER_URL}/api/grid/${gridId}`);
