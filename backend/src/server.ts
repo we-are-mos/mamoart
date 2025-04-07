@@ -3,8 +3,7 @@ import http from "http";
 import cors from "cors";
 import dotenv from "dotenv";
 import helmet from "helmet";
-import { WebSocketServer, WebSocket } from "ws";
-import rateLimit from 'express-rate-limit';
+import { WebSocket, WebSocketServer } from "ws";
 import chalk from "chalk";
 
 import getNFTsRoute from "./routes/getNFTs";
@@ -49,30 +48,12 @@ app.use(express.json({ limit: "100kb" }));
 // 📦 API Routes
 // ─────────────────────────────────────────────
 
-const globalLimiter = rateLimit({
-  windowMs: 2 * 60 * 1000,
-  max: 60,
-  message: "Too many requests, please try again later.",
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-const strictLimiter = rateLimit({
-  windowMs: 2 * 60 * 1000,
-  max: 30,
-  message: "Too many requests, please try again later.",
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-app.use("/", globalLimiter);
-
 app.get("/", (req, res) => {
   res.status(200).send("Mamoart Backend is alive ✅");
 });
 
 app.use("/getNFTs", getNFTsRoute);
-app.use("/createTx", strictLimiter, createTxRoute);
+app.use("/createTx", createTxRoute);
 app.use("/connectKeplr", connectKeplrRoute);
 
 // ─────────────────────────────────────────────
@@ -97,7 +78,7 @@ const wss = new WebSocketServer({ server });
 const connections = new Map();
 
 const MAX_CONNECTIONS_PER_IP = 5;
-const MIN_INTERVAL_BETWEEN_MESSAGES = 15_000;
+const MAX_MESSAGES_IN_MINUTE = 15;
 
 function getClientIP(req: http.IncomingMessage) {
   const cfIP = req.headers['cf-connecting-ip'];
@@ -116,9 +97,10 @@ wss.on("connection", (ws: WebSocket, req: http.IncomingMessage) => {
   (ws as any).isAlive = true;
 
   console.log(chalk.green(`📡 New WebSocket client connected from ${ip}`));
+  console.log(chalk.blue(`👥 Total connected clients: ${wss.clients.size}`));
 
   if (!connections.has(ip)) {
-    connections.set(ip, { connections: 1, lastMessage: 0 });
+    connections.set(ip, { connections: 1, messageTimestamps: [] });
   } else {
     const connectionData = connections.get(ip);
     connectionData.connections += 1;
@@ -131,34 +113,39 @@ wss.on("connection", (ws: WebSocket, req: http.IncomingMessage) => {
   }
 
   ws.on("message", (msg) => {
+    if (ws.readyState !== WebSocket.OPEN) return;
+
     try {
       const data = JSON.parse(msg.toString());
       const connectionData = connections.get(ip);
       const now = Date.now();
 
-      if (now - connectionData.lastMessage < MIN_INTERVAL_BETWEEN_MESSAGES) {
-        console.warn(chalk.red(`[RateLimit] ❌ Message spam from ${ip}`));
-        ws.close();
+      connectionData.messageTimestamps = (connectionData.messageTimestamps || []).filter(
+        (timestamp: any) => now - timestamp <= 60_000
+      );
+      connectionData.messageTimestamps.push(now);
+
+      if (connectionData.messageTimestamps.length > MAX_MESSAGES_IN_MINUTE) {
+        console.warn(chalk.red(`[RateLimit] ❌ Too many messages in 1 min from ${ip}`));
+        ws.close(4001, "Too many messages in short time");
         return;
       }
-      connectionData.lastMessage = now;
-  
+      
       if (data.type === "keepAlive") {
-        (ws as any).isAlive = true;
-        console.log(chalk.blue("💓 Ponged by client via keepAlive"));
+        (ws as any).isAlive = true;      
       }
   
     } catch (err) {
       console.error(chalk.red("❌ WS message parse error:"), err);
     }
   });
-
+  
   const interval = setInterval(() => {
     if (!(ws as any).isAlive) {
       console.log(chalk.yellow("❌ Client inactive, closing connection."));
       if (wss.clients.has(ws)) {
         (ws as any).isAlive = false;
-        ws.terminate();
+        ws.close();
       }
     }
   }, 30000);
@@ -173,6 +160,7 @@ wss.on("connection", (ws: WebSocket, req: http.IncomingMessage) => {
     }
     clearInterval(interval);
     console.log(chalk.yellow(`🔌 Connection closed at ${ip}`));
+    console.log(chalk.blue(`👥 Total connected clients: ${wss.clients.size}`));
   });
 
   try {
