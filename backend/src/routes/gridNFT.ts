@@ -89,6 +89,7 @@ router.get("/:hashedGridId", async (req, res) => {
 
   try {
     const finalBuffer = await promise;
+    res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
     res.setHeader("Content-Type", "image/webp");
     res.send(finalBuffer);
   } catch (err) {
