@@ -105,7 +105,7 @@ const Grid = () => {
                       }`
                 } ${isSelected ? "border-8 border-[#8b5cf6]" : ""}`}
               >
-                {isOwned && (
+                {isOwned && grid.nftImageFromMOS && grid?.nftImage !== "unknown" && (
                   <img
                     src={grid.nftImageFromMOS}
                     alt="nft"

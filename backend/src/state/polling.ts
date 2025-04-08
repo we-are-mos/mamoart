@@ -61,9 +61,9 @@ export async function updateGridState() {
         nftLink: grid.nftAddress.startsWith("stars") ? `https://www.stargaze.zone/m/${grid.nftAddress}/${grid.tokenId}` : `https://explorer.forma.art/token/${grid.nftAddress}/instance/${grid.tokenId}`,
         nftImageFromMOS: ""
       }
-      ///////////DEĞİŞTİRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR
+      
       const originHashed = hashURL(FullyGrid.nftImage)
-      FullyGrid.nftImageFromMOS = `http://localhost:4444/gridNFT/${FullyGrid.gridId}-${originHashed}`;
+      FullyGrid.nftImageFromMOS = `https://api.mammothos.xyz/gridNFT/${FullyGrid.gridId}-${originHashed}`;
       setImageMap(FullyGrid.gridId, FullyGrid.nftImage);
 
       const existing = gridCache.get(grid.gridId);
@@ -106,7 +106,7 @@ export async function updateGridState() {
           nftImageFromMOS: ""
         }
         const originHashed = hashURL(FullyGrid.nftImage)
-        FullyGrid.nftImageFromMOS = `http://localhost:4444/gridNFT/${FullyGrid.gridId}-${originHashed}`;
+        FullyGrid.nftImageFromMOS = `https://api.mammothos.xyz/gridNFT/${FullyGrid.gridId}-${originHashed}`;
         setRecentPaint(i, FullyGrid);
       }
     });
