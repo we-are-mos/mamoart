@@ -105,11 +105,12 @@ const Grid = () => {
                       }`
                 } ${isSelected ? "border-8 border-[#8b5cf6]" : ""}`}
               >
-                {isOwned && grid?.nftImage && grid?.nftImage !== "unknown" && (
+                {isOwned && (
                   <img
-                    src={grid.nftImage}
+                    src={grid.nftImageFromMOS}
                     alt="nft"
                     className="w-full h-full object-cover"
+                    onError={() => console.warn("Image failed", grid.nftImageFromMOS)}
                   />
                 )}
               </div>

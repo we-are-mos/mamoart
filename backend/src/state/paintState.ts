@@ -1,4 +1,4 @@
-import { type RawGridType } from "../utils/types";
+import { type GridType } from "../utils/types";
 
 // ─────────────────────────────────────────────
 // 🧠 In-memory cache for recent paints
@@ -8,7 +8,7 @@ import { type RawGridType } from "../utils/types";
  * Stores the last 10 painted grid tiles.
  * This is updated during each polling cycle and sent to new clients on connection.
  */
-const recentPaints = new Map<number, RawGridType>();
+const recentPaints = new Map<number, GridType>();
 
 /**
  * Sets the paint data for a specific index (0–9).
@@ -17,7 +17,7 @@ const recentPaints = new Map<number, RawGridType>();
  * @param index - Index in the lastPaints array (0 = most recent)
  * @param grid - Grid data representing the NFT paint
  */
-export function setRecentPaint(index: number, grid: RawGridType) {
+export function setRecentPaint(index: number, grid: GridType) {
   recentPaints.set(index, grid);
 }
 
@@ -25,7 +25,7 @@ export function setRecentPaint(index: number, grid: RawGridType) {
  * Returns the current list of last painted tiles as an array.
  * Used in the WebSocket `init` payload and UI history views.
  */
-export function getRecentPaints(): RawGridType[] {
+export function getRecentPaints(): GridType[] {
   return Array.from(recentPaints.values());
 }
 

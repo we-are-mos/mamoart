@@ -9,25 +9,11 @@ export type GridType = {
   isOwned: boolean;
   nftName: string;
   nftImage: string;
+  nftImageFromMOS: string,
   nftAddress: string;
   tokenId: number;
   metadata: string;
   nftLink: string;
-  painter: string;
-  block: number;
-  txHash: string;
-  paintedAt: string;
-};
-
-/**
- * RawGridType is the raw form received from the backend or blockchain,
- * typically without any frontend-specific enrichments.
- */
-export type RawGridType = {
-  gridId: number;
-  nftAddress: string;
-  tokenId: number;
-  metadata: string;
   painter: string;
   block: number;
   txHash: string;

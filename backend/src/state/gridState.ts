@@ -1,4 +1,4 @@
-import { type RawGridType } from "../utils/types";
+import { type GridType } from "../utils/types";
 
 // ─────────────────────────────────────────────
 // 🧠 Grid State Management (In-Memory Caching)
@@ -8,13 +8,13 @@ import { type RawGridType } from "../utils/types";
  * Stores all 1500 grid tiles fetched from the indexer.
  * Each entry maps gridId to its corresponding NFT data.
  */
-const gridCache = new Map<number, RawGridType>();
+const gridCache = new Map<number, GridType>();
 
 /**
  * Tracks only the grids that changed in the latest polling cycle.
  * This is used to broadcast minimal updates to WebSocket clients.
  */
-const updatedGridCache = new Map<number, RawGridType>();
+const updatedGridCache = new Map<number, GridType>();
 
 /**
  * Caches metadata (parsed JSON) by token key.
@@ -28,7 +28,7 @@ const metadataCache = new Map<string, any>();
  *
  * @param grid - The latest data for a specific grid
  */
-export function setGrid(grid: RawGridType) {
+export function setGrid(grid: GridType) {
   gridCache.set(grid.gridId, grid);
 }
 
@@ -39,7 +39,7 @@ export function setGrid(grid: RawGridType) {
  * @param gridId - The ID of the grid tile
  * @returns The matching grid or undefined
  */
-export function getGrid(gridId: number): RawGridType | undefined {
+export function getGrid(gridId: number): GridType | undefined {
   return gridCache.get(gridId);
 }
 
@@ -47,7 +47,7 @@ export function getGrid(gridId: number): RawGridType | undefined {
  * Returns all cached grid tiles.
  * Typically used to initialize clients with the full grid state.
  */
-export function getAllGrids(): RawGridType[] {
+export function getAllGrids(): GridType[] {
   return Array.from(gridCache.values());
 }
 
@@ -57,14 +57,14 @@ export function getAllGrids(): RawGridType[] {
  *
  * @param grid - The changed grid to be tracked
  */
-export function markGridAsUpdated(grid: RawGridType) {
+export function markGridAsUpdated(grid: GridType) {
   updatedGridCache.set(grid.gridId, grid);
 }
 
 /**
  * Returns the list of currently marked updated grids.
  */
-export function getUpdatedGrids(): RawGridType[] {
+export function getUpdatedGrids(): GridType[] {
   return Array.from(updatedGridCache.values());
 }
 

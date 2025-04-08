@@ -12,7 +12,9 @@ import {
 } from "./paintState";
 import { setStats } from "./statsState";
 import { broadcastToClients } from "../server";
-import { type RawGridType, type StatsType } from "../utils/types";
+import { type GridType, type RawGridType, type StatsType } from "../utils/types";
+import { setImageMap, deleteCompressedCache } from "./nftImageState";
+import { hashURL } from "../utils/hash";
 
 // ─────────────────────────────────────────────
 // 🔁 Grid Polling System
@@ -36,11 +38,42 @@ export async function updateGridState() {
     const grids: RawGridType[] = await res.json() as RawGridType[];
 
     for (const grid of grids) {
-      const existing = gridCache.get(grid.gridId);
-      const changed = existing && JSON.stringify(existing) !== JSON.stringify(grid);
+      const FullyGrid: GridType = {
+        ...grid,
+        isOwned: grid.painter !== "0x0000000000000000000000000000000000000000",
+        nftName: (() => {
+          try {
+            const meta = grid.metadata as string | { name: string };
+            return typeof meta === "string" ? JSON.parse(meta).name : meta.name;
+          } catch {
+            return "unknown";
+          }
+        })(),
+        nftImage: (() => {
+          try {
+            const meta = grid.metadata as string | { image: string };
+            const image = typeof meta === "string" ? JSON.parse(meta).image : meta.image;
+            return image.startsWith("ipfs://") ? image.replace("ipfs://", "https://ipfs.io/ipfs/") : image;
+          } catch {
+            return "unknown";
+          }
+        })(),
+        nftLink: grid.nftAddress.startsWith("stars") ? `https://www.stargaze.zone/m/${grid.nftAddress}/${grid.tokenId}` : `https://explorer.forma.art/token/${grid.nftAddress}/instance/${grid.tokenId}`,
+        nftImageFromMOS: ""
+      }
+      ///////////DEĞİŞTİRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR
+      const originHashed = hashURL(FullyGrid.nftImage)
+      FullyGrid.nftImageFromMOS = `http://localhost:4444/gridNFT/${FullyGrid.gridId}-${originHashed}`;
+      setImageMap(FullyGrid.gridId, FullyGrid.nftImage);
 
-      setGrid(grid);
-      if (changed) markGridAsUpdated(grid);
+      const existing = gridCache.get(grid.gridId);
+      const changed = existing && JSON.stringify(existing) !== JSON.stringify(FullyGrid);
+
+      setGrid(FullyGrid);
+      if (changed) {
+        deleteCompressedCache(FullyGrid.gridId);
+        markGridAsUpdated(FullyGrid)
+      }
     }
 
     // ─── 2. Fetch last 10 painted tiles ─────
@@ -49,7 +82,32 @@ export async function updateGridState() {
 
     paints.forEach((paint, i) => {
       if (paint.painter.toLowerCase() !== "0x0000000000000000000000000000000000000000") {
-        setRecentPaint(i, paint);
+        const FullyGrid: GridType = {
+          ...paint,
+          isOwned: paint.painter !== "0x0000000000000000000000000000000000000000",
+          nftName: (() => {
+            try {
+              const meta = paint.metadata as string | { name: string };
+              return typeof meta === "string" ? JSON.parse(meta).name : meta.name;
+            } catch {
+              return "unknown";
+            }
+          })(),
+          nftImage: (() => {
+            try {
+              const meta = paint.metadata as string | { image: string };
+              const image = typeof meta === "string" ? JSON.parse(meta).image : meta.image;
+              return image.startsWith("ipfs://") ? image.replace("ipfs://", "https://ipfs.io/ipfs/") : image;
+            } catch {
+              return "unknown";
+            }
+          })(),
+          nftLink: paint.nftAddress.startsWith("stars") ? `https://www.stargaze.zone/m/${paint.nftAddress}/${paint.tokenId}` : `https://explorer.forma.art/token/${paint.nftAddress}/instance/${paint.tokenId}`,
+          nftImageFromMOS: ""
+        }
+        const originHashed = hashURL(FullyGrid.nftImage)
+        FullyGrid.nftImageFromMOS = `http://localhost:4444/gridNFT/${FullyGrid.gridId}-${originHashed}`;
+        setRecentPaint(i, FullyGrid);
       }
     });
 

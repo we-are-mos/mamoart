@@ -7,6 +7,7 @@ import { WebSocket, WebSocketServer } from "ws";
 import chalk from "chalk";
 
 import getNFTsRoute from "./routes/getNFTs";
+import gridNFTRoute from "./routes/gridNFT";
 import createTxRoute from "./routes/createTx";
 import connectKeplrRoute from "./routes/connectKeplr";
 
@@ -32,16 +33,19 @@ const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS?.split(",") || [];
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || ALLOWED_ORIGINS!.includes(origin)) {
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error("Not allowed by CORS"));
     }
   },
-  credentials: true,
+  credentials: false,
 }));
 
-app.use(helmet({ contentSecurityPolicy: false }));
+app.use(helmet({
+  crossOriginResourcePolicy: false,
+  contentSecurityPolicy: false
+}));
 app.use(express.json({ limit: "100kb" }));
 
 // ─────────────────────────────────────────────
@@ -53,6 +57,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/getNFTs", getNFTsRoute);
+app.use("/gridNFT", gridNFTRoute)
 app.use("/createTx", createTxRoute);
 app.use("/connectKeplr", connectKeplrRoute);
 

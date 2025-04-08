@@ -35,6 +35,22 @@ export type RawGridType = {
   paintedAt: string;
 };
 
+export type GridType = {
+  gridId: number;
+  isOwned: boolean;
+  nftName: string;
+  nftImage: string;
+  nftImageFromMOS: string;
+  nftAddress: string;
+  tokenId: number;
+  metadata: string;
+  nftLink: string;
+  painter: string;
+  block: number;
+  txHash: string;
+  paintedAt: string;
+};
+
 /**
  * Represents stats returned by the indexer.
  * These are stored in memory and updated with each polling cycle.
