@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { ConnectButton } from '@rainbow-me/rainbowkit';
 import PaintModal from "./PaintModal";
 import { useAccount } from "wagmi";
 import { GridType } from "../../context/WebSocketContext";
