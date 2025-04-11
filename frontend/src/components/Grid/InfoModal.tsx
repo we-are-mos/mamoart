@@ -56,27 +56,6 @@ const InfoModal = ({gridData}: InfoModalProps) => {
       {/* Grid Info */}
       <div className="flex justify-between items-center">
         <p className="text-[#e5e5e5] font-semibold font-mono">Grid {gridData.gridId}</p>
-
-        {!isConnected ? (
-          <ConnectButton 
-            accountStatus="address" 
-            showBalance={{ smallScreen: false, largeScreen: false }} 
-          />
-        ) : gridData.isOwned ? (
-          <button
-            onClick={() => handlePaintModal()}
-            className="bg-[#8b5cf6] hover:bg-[#7c4ce0] transition px-3 py-1 rounded-md text-sm text-white font-medium cursor-pointer"
-          >
-            Paint on it
-          </button>
-        ) : (
-          <button
-            onClick={() => handlePaintModal()}
-            className="bg-[#10b981] hover:bg-[#0ea672] transition px-3 py-1 rounded-md text-sm text-white font-medium cursor-pointer"
-          >
-            Mint & Paint
-          </button>
-        )}
       </div>
 
       {/* Already Owned By Someone ? */}
